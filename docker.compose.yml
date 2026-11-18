@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  nginx-gateway:
+    image: nginx:1.25-alpine
+    container_name: ann_nginx_gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - web-app
+    restart: always
+
+  web-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: ann_web_portal
+    env_file: .env
+    expose:
+      - "3000"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    restart: always
+
+  postgres-db:
+    image: pgvector/pgvector:pg16
+    container_name: ann_enterprise_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ann_enterprise_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./infra/sql/init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-ann_enterprise_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  automation-engine:
+    build:
+      context: ./automation
+      dockerfile: Dockerfile
+    container_name: ann_automation_engine
+    env_file: .env
+    volumes:
+      - nginx_logs:/var/log/nginx:ro
+      - backup_scratch:/tmp
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  pg_data:
+  nginx_logs:
+  backup_scratch:

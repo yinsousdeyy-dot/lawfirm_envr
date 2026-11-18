@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ann & Associates — Clean Single-Surface Header</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FIXED: Properly closed favicon link tag for browser tab icon -->
+  <link rel="icon" type="image/png" href="public/images/Ann%20%26%20Associates%20Law%20Firm.png" />
+
+  <style>
+    :root {
+      --brand-emerald: #0b5d3b;
+      --brand-emerald-soft: #eef6f2;
+      --text-main: #111827;
+      --text-muted: #4b5563;
+      --border-light: #e5e7eb;
+      --surface-white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-padding-top: 96px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8faf9;
+      color: var(--text-main);
+      min-height: 140vh;
+    }
+
+    /* Simulated Address Bar to show clean URL routing */
+    .url-preview-bar {
+      background: #eef2f0;
+      border-bottom: 1px solid #dce4e0;
+      padding: 8px 24px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12.5px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .url-preview-bar strong {
+      color: var(--brand-emerald);
+    }
+
+    /* ==========================================================================
+       CLEAN SINGLE-SURFACE HEADER (No Second Inner Gray Pill)
+       Layout: [Logo] ANN & ASSOCIATES       Law Firm ▾ | The Firm ▾  Insights  Events  Careers  Contact Us
+       ========================================================================== */
+    .header-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 16px 24px;
+      transition: transform 0.25s ease;
+    }
+
+    .header-wrapper.header-hidden {
+      transform: translateY(-120%);
+    }
+
+    .header-bar {
+      max-width: 1180px;
+      height: 64px;
+      margin: 0 auto;
+      background: var(--surface-white);
+      border: 1px solid var(--border-light);
+      border-radius: 9999px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.06);
+    }
+
+    /* 1. LEFT: Brand Logo Image + Text */
+    .brand-logo {
+      text-decoration: none;
+      color: var(--brand-emerald);
+      font-weight: 800;
+      font-size: 15.5px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo-img {
+      height: 34px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* 2. RIGHT GROUP: Entity Switcher (Law Firm^) + Navigation Links */
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    /* Subtle Divider between "Law Firm ▾" and "The Firm ▾" */
+    .entity-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border-light);
+    }
+
+    .nav-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Clean Flat Links (No gray pill background) */
+    .nav-link,
+    .entity-trigger {
+      background: transparent;
+      border: none;
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 4px;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    /* Entity Switcher ("Law Firm ▾") Styling */
+    .entity-trigger {
+      color: var(--brand-emerald);
+      font-weight: 600;
+    }
+
+    .nav-link:hover,
+    .entity-trigger:hover {
+      color: var(--brand-emerald);
+    }
+
+    /* Active Link Indicator: Clean Emerald Text + Subtle Bottom Underline */
+    .nav-link.active {
+      color: var(--brand-emerald);
+      font-weight: 600;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 4px;
+      right: 4px;
+      height: 2px;
+      background: var(--brand-emerald);
+      border-radius: 2px;
+    }
+
+    /* Caret Icon (^ / v) */
+    .caret {
+      width: 13px;
+      height: 13px;
+      transition: transform 0.2s ease;
+      opacity: 0.75;
+    }
+
+    .nav-item:hover .caret {
+      transform: rotate(180deg);
+    }
+
+    /* Dropdown Menus for "Law Firm ▾" and "The Firm ▾" */
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      min-width: 210px;
+      background: var(--surface-white);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: all 0.16s ease;
+      z-index: 1100;
+    }
+
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+      transition: background 0.15s ease, color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .dropdown-link:hover {
+      background: var(--brand-emerald-soft);
+      color: var(--brand-emerald);
+    }
+
+    .dropdown-sub {
+      display: block;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 860px) {
+      .header-bar {
+        padding: 0 18px;
+      }
+      .nav-group {
+        gap: 16px;
+      }
+      .nav-link {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       CLEAN SINGLE-BAR HEADER
+       [Logo] ANN & ASSOCIATES        Law Firm ▾  |  The Firm ▾  Insights  Events  Careers  Contact Us
+       ========================================================================== -->
+  <header id="mainHeader" class="header-wrapper">
+    <div class="header-bar">
+      
+      <!-- Left: Brand Logo Image + Text (Clicking goes Home) -->
+      <a href="#home" class="brand-logo" onclick="setRoute('/', null)">
+        <img 
+          src="public/images/Ann & Associates Law Firm.png" 
+          alt="Ann & Associates Logo" 
+          class="brand-logo-img"
+          onerror="this.style.display='none'" 
+        />
+      
+      </a>
+
+      <!-- Right: Law Firm^ + Primary Navigation Links (No Second Gray Pill) -->
+      <nav class="nav-group" aria-label="Main Navigation">
+        
+        <!-- 1. Entity Switcher: law firm^ -->
+        <div class="nav-item">
+          <button type="button" class="entity-trigger">
+            <span id="entityText">Law Firm</span>
+            <svg class="caret" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div class="dropdown">
+            <a class="dropdown-link" onclick="setEntity('Law Firm', '')">
+              Law Firm
+              <span class="dropdown-sub">Legal Practice & Advisory</span>
+            </a>
+            <a class="dropdown-link" onclick="setEntity('Academy', '/academy')">
+              Academy
+              <span class="dropdown-sub">Seminars & Legal Training</span>
+            </a>
+            <a class="dropdown-link" onclick="setEntity('Consulting', '/consulting')">
+              Co., Ltd.
+              <span class="dropdown-sub">Tax & Corporate Compliance</span>
+            </a>
+          </div>
+        </div>
+
+        <span class="entity-divider" aria-hidden="true"></span>
+
+        <!-- 2. the firm (Groups About Us, Our Team, Network) -->
+        <div class="nav-item">
+          <button type="button" id="theFirmBtn" class="nav-link active">
+            <span>The Firm</span>
+            <svg class="caret" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div class="dropdown">
+            <a class="dropdown-link" onclick="setRoute('/about', document.getElementById('theFirmBtn'))">About Us</a>
+            <a class="dropdown-link" onclick="setRoute('/team', document.getElementById('theFirmBtn'))">Our Team</a>
+            <a class="dropdown-link" onclick="setRoute('/network', document.getElementById('theFirmBtn'))">Network</a>
+          </div>
+        </div>
+
+        <!-- 3. insights -->
+        <div class="nav-item">
+          <a class="nav-link" onclick="setRoute('/insights', this)">Insights</a>
+        </div>
+
+        <!-- 4. events -->
+        <div class="nav-item">
+          <a class="nav-link" onclick="setRoute('/events', this)">Events</a>
+        </div>
+
+        <!-- 5. careers -->
+        <div class="nav-item">
+          <a class="nav-link" onclick="setRoute('/careers', this)">Careers</a>
+        </div>
+
+        <!-- 6. contact us -->
+        <div class="nav-item">
+          <a class="nav-link" onclick="setRoute('/contact', this)">Contact Us</a>
+        </div>
+
+      </nav>
+    </div>
+  </header>
+
+  <script>
+    let entityPrefix = '';
+    let activePath = '/network';
+
+    function setRoute(path, element) {
+      activePath = path;
+      updateUrlPreview();
+
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      if (element) {
+        element.classList.add('active');
+      }
+    }
+
+    function setEntity(name, prefix) {
+      entityPrefix = prefix;
+      document.getElementById('entityText').textContent = name;
+      updateUrlPreview();
+    }
+
+    function updateUrlPreview() {
+      const cleanUrl = entityPrefix + (activePath === '/' ? '' : activePath) || '/';
+      document.getElementById('urlDisplay').textContent = cleanUrl;
+    }
+
+    // Auto-hide header on downward scroll so form inputs at the bottom are never covered
+    let prevScroll = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('mainHeader');
+      if (window.scrollY > 100 && window.scrollY > prevScroll) {
+        header.classList.add('header-hidden');
+      } else {
+        header.classList.remove('header-hidden');
+      }
+      prevScroll = window.scrollY;
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
